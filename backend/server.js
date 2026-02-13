@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -14,7 +13,6 @@ app.use(cors({
 }));
 
 
-app.options("*", cors());
 
 app.use(express.json());
 
@@ -22,7 +20,7 @@ const MONGO_URI = process.env.MONGO_URI;
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log("Connected to MongoDB"))
-  .catch(err => console.error("MongoDB connectiogn error:", err));
+  .catch(err => console.error("MongoDB connection error:", err));
 
 // Schema
 const userSchema = new mongoose.Schema({
@@ -54,10 +52,10 @@ app.get("/users", async (req, res) => {
 
 app.post("/users", async (req, res) => {
   try {
-    console.log("Received user data:", req.body); // Debug log
+    console.log("Received user data:", req.body);
     const user = new User(req.body);
     await user.save();
-    console.log("User saved successfully:", user); // Debug log
+    console.log("User saved successfully:", user);
     res.status(201).json(user);
   } catch (err) {
     console.error("Error saving user:", err);
