@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Records</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>User Records</h1>
+    <p>
+      Add a user with the form on the left and display records in the table on the right.
+      <span class="hint">(JavaScript version: form submission updates table instantly.)</span>
+    </p>
+  </header>
+  <main class="wrap">
+   
+    <section class="card" aria-label="Add user form">
+      <div class="card-head">
+        <h2>Add a Record</h2>
+        <span class="hint">Fields marked * are required</span>
+      </div>
+      <form id="user-form" autocomplete="on">
+        <fieldset>
+          <legend>Identity</legend>
+          <div class="grid">
+            <label>
+              Full Name *
+              <input name="name" type="text" placeholder="e.g., Kevin DesLauriers" required />
+            </label>
+            <div class="grid two">
+              <label>
+                Age *
+                <input name="age" type="number" min="0" max="130" placeholder="e.g., 52" required />
+              </label>
+              <label>
+                Gender *
+                <select name="gender" required>
+                  <option value="" selected disabled>Choose…</option>
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
+                  <option value="Non-binary">Non-binary</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Contact</legend>
+          <div class="grid">
+            <label>
+              Phone Number *
+              <input name="phone" type="tel" placeholder="e.g., (416) 555-0123" required />
+            </label>
+            <label>
+              Address *
+              <textarea name="address" placeholder="Street, City, Province/State, Postal/ZIP" required></textarea>
+            </label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Account</legend>
+          <div class="grid two">
+            <label>
+              Username *
+              <input name="username" type="text" placeholder="e.g., kevin_d" required />
+            </label>
+            <label>
+              Password *
+              <input name="password" type="password" placeholder="Enter a password" required />
+            </label>
+          </div>
+          <div class="row">
+            <span class="req">Tip: Use HTTPS + server-side validation for passwords.</span>
+          </div>
+        </fieldset>
+        <div class="actions">
+          <button class="btn primary" type="submit">Add Record</button>
+          <button class="btn ghost" type="reset">Clear</button>
+        </div>
+      </form>
+      <div class="note">
+        <strong>Note:</strong> This version uses fetch to update the table dynamically.
+      </div>
+    </section>
+
+    <!-- table -->
+    <section class="card table-wrap" aria-label="User records table">
+      <div class="card-head">
+        <h2>Current Records</h2>
+        <span class="hint">Table updates automatically</span>
+      </div>
+      <div class="table-scroller" role="region" aria-label="Scrollable user records table" tabindex="0">
+        <table id="user-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>Gender</th>
+              <th>Age</th>
+              <th>Username</th>
+              <th>Password</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- table rows will be populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    HTML + CSS + JS version with fetch calls
+  </footer>
+
+  <!-- JS fetch script -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("user-form");
+      const tableBody = document.querySelector("#user-table tbody");
+      const BACKEND_URL = "http://localhost:3000";
+
+      // Load users
+      async function loadUsers() {
+        const res = await fetch(`${BACKEND_URL}/users`);
+        const users = await res.json();
+        tableBody.innerHTML = "";
+        users.forEach(user => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${user.name}</td>
+            <td>${user.phone}</td>
+            <td>${user.address}</td>
+            <td><span class="pill">${user.gender}</span></td>
+            <td>${user.age}</td>
+            <td>${user.username}</td>
+            <td><span class="pill ok">••••••••</span></td>
+          `;
+          tableBody.appendChild(tr);
+        });
+      }
+
+      // Handle form submission
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const user = Object.fromEntries(formData.entries());
+        user.age = Number(user.age);
+
+        await fetch(`${BACKEND_URL}/users`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(user)
+        });
+
+        loadUsers();
+        form.reset();
+      });
+
+      // Initial load
+      loadUsers();
+    });
+  </script>
+</body>
+</html>
