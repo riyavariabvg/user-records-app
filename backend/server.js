@@ -5,9 +5,18 @@ const mongoose = require("mongoose");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({ origin: "*" }));
-app.use(express.json());
 
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: false
+}));
+
+
+app.options("*", cors());
+
+app.use(express.json());
 
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -26,7 +35,6 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true }
 });
 
-
 const User = mongoose.model("User", userSchema, "users");
 
 // Routes
@@ -39,16 +47,20 @@ app.get("/users", async (req, res) => {
     const users = await User.find({});
     res.json(users);
   } catch (err) {
+    console.error("Error fetching users:", err);
     res.status(500).json({ error: "Failed to fetch users" });
   }
 });
 
 app.post("/users", async (req, res) => {
   try {
+    console.log("Received user data:", req.body); // Debug log
     const user = new User(req.body);
     await user.save();
+    console.log("User saved successfully:", user); // Debug log
     res.status(201).json(user);
   } catch (err) {
+    console.error("Error saving user:", err);
     res.status(400).json({ error: "Invalid user data", details: err.message });
   }
 });
