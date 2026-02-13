@@ -124,7 +124,7 @@
       const tableBody = document.querySelector("#user-table tbody");
       const BACKEND_URL = "https://user-records-api.onrender.com";
 
-      // Load users
+      
       async function loadUsers() {
         try {
           console.log("Fetching users from:", `${BACKEND_URL}/users`);
@@ -153,11 +153,9 @@
           });
         } catch (error) {
           console.error("Error loading users:", error);
-          alert("Failed to load users. Check console for details.");
         }
       }
 
-      // Handle form submission
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         
@@ -184,14 +182,12 @@
           
           await loadUsers();
           form.reset();
-          alert("User added successfully!");
         } catch (error) {
           console.error("Error adding user:", error);
-          alert(`Failed to add user: ${error.message}`);
         }
       });
 
-      // Initial load
+      
       loadUsers();
     });
   </script>
